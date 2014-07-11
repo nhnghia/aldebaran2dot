@@ -10,7 +10,27 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 using namespace std;
+
+vector<string> split(std::string txt, string delim) {
+	string text = string(txt);
+	std::vector<std::string> elems;
+
+	int start = 0, end = 0;
+	std::string s;
+	while ((end = text.find(delim, start)) != std::string::npos) {
+		s = text.substr(start, end - start);
+		if (!s.empty())
+			elems.push_back(s);
+		start = end + 1;
+	}
+	s = text.substr(start);
+	if (!s.empty())
+		elems.push_back(s);
+
+	return elems;
+}
 
 int main(int argc, char * argv[]) {
 	if (argc != 2){
@@ -41,12 +61,14 @@ int main(int argc, char * argv[]) {
 		//a line is a string in format: (source,"label",destination)
 		line = line.substr(1, line.size()-2);	//remove ( and )
 
-		istringstream iss(line);
-		string src, dst, label;
-		getline(iss, src, ',');
-		getline(iss, label, ',');
-		getline(iss, dst, ',');
-		outfile <<src <<" -> " <<dst <<" [label=" <<label <<"];" <<endl;
+		vector<string> s = split(line, ",\"");
+		string src = s.at(0);
+		string label = s.at(1);
+		s = split(label, "\",");
+		string dst = s.at(1);
+		dst = dst[1];	//remove "
+		label = s.at(0);
+		outfile <<src <<" -> " <<dst <<" [label=" <<label <<"\"];" <<endl;
 	}
 	outfile <<"}";
 	return 1;
